@@ -1,0 +1,79 @@
+name: Firebase Project Setup
+
+# This workflow can be run manually to set up or activate the Firebase project
+# Run this once after creating a new Firebase project or when setting up CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: 'Deploy all services (hosting, functions, firestore rules)'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  setup_project:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
+
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm ci || npm install
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools@13.0.0
+
+      - name: Verify Firebase project
+        run: |
+          echo "🔍 Verifying Firebase project configuration..."
+          echo "Project ID: fpl-tool-dfb38"
+          firebase projects:list --token ${{ secrets.FIREBASE_TOKEN }} || echo "Note: If this fails, ensure FIREBASE_TOKEN is set correctly"
+
+      - name: Deploy Firestore Rules
+        if: inputs.deploy_all == true
+        run: |
+          echo "📜 Deploying Firestore security rules..."
+          firebase deploy --only firestore:rules --project fpl-tool-dfb38 --token ${{ secrets.FIREBASE_TOKEN }} --non-interactive
+
+      - name: Deploy Firestore Indexes
+        if: inputs.deploy_all == true
+        run: |
+          echo "📊 Deploying Firestore indexes..."
+          firebase deploy --only firestore:indexes --project fpl-tool-dfb38 --token ${{ secrets.FIREBASE_TOKEN }} --non-interactive
+
+      - name: Deploy Cloud Functions
+        if: inputs.deploy_all == true
+        run: |
+          echo "⚡ Deploying Cloud Functions..."
+          firebase deploy --only functions --project fpl-tool-dfb38 --token ${{ secrets.FIREBASE_TOKEN }} --non-interactive
+
+      - name: Deploy Hosting
+        if: inputs.deploy_all == true
+        run: |
+          echo "🌐 Deploying Firebase Hosting..."
+          firebase deploy --only hosting --project fpl-tool-dfb38 --token ${{ secrets.FIREBASE_TOKEN }} --non-interactive
+
+      - name: Setup complete
+        run: |
+          echo "✅ Firebase project setup complete!"
+          echo ""
+          echo "Your app should now be available at:"
+          echo "https://fpl-tool-dfb38.web.app"
+          echo ""
+          echo "Cloud Functions endpoint:"
+          echo "https://us-central1-fpl-tool-dfb38.cloudfunctions.net"

@@ -1,0 +1,28 @@
+{
+  "name": "firebase-web-app",
+  "version": "1.0.0",
+  "description": "A basic Progressive Web App template built with Firebase",
+  "scripts": {
+    "serve": "firebase serve",
+    "deploy": "firebase deploy",
+    "logs": "firebase functions:log"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/your-firebase-app.git"
+  },
+  "keywords": [
+    "firebase",
+    "pwa",
+    "web-app",
+    "template"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "firebase-tools": "13.0.0"
+  },
+  "dependencies": {
+    "functions": "file:functions"
+  }
+}

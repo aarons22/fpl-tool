@@ -1,0 +1,567 @@
+/* brewfellow - Mobile-First Styles */
+/* Coffee-themed color palette and clean, minimal design */
+
+:root {
+  /* Coffee-themed colors */
+  --coffee-dark: #6f4e37;
+  --coffee-medium: #8b6f47;
+  --coffee-light: #c4a777;
+  --cream: #fff8f0;
+  --espresso: #3e2723;
+  --white: #ffffff;
+  --error: #d32f2f;
+  --success: #388e3c;
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+
+  /* Border radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", sans-serif;
+  background: linear-gradient(
+    135deg,
+    var(--cream) 0%,
+    var(--coffee-light) 100%
+  );
+  color: var(--espresso);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: var(--spacing-sm);
+}
+
+/* Container */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: var(--coffee-dark);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+}
+
+.tagline {
+  color: var(--coffee-medium);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Card Styles */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--coffee-dark);
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.95rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--coffee-light);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"]:focus {
+  outline: none;
+  border-color: var(--coffee-dark);
+}
+
+.form-group small {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: var(--coffee-medium);
+  font-size: 0.85rem;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--coffee-dark);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--espresso);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--coffee-light);
+  color: var(--espresso);
+  margin-top: var(--spacing-md);
+}
+
+.btn-secondary:hover {
+  background: var(--coffee-medium);
+}
+
+/* Loading Spinner */
+.loading {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto var(--spacing-md);
+  border: 4px solid var(--coffee-light);
+  border-top: 4px solid var(--coffee-dark);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  color: var(--coffee-medium);
+  font-style: italic;
+}
+
+/* Error Message */
+.error {
+  background: #ffebee;
+  color: var(--error);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--error);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Success Message */
+.success {
+  background: #e8f5e9;
+  color: var(--success);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--success);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Recipe Display */
+.recipe-card {
+  background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%);
+}
+
+.recipe-card h2 {
+  color: var(--coffee-dark);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.8rem;
+  border-bottom: 2px solid var(--coffee-light);
+  padding-bottom: var(--spacing-sm);
+}
+
+.recipe-details h3 {
+  color: var(--coffee-dark);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+}
+
+.recipe-section {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--coffee-dark);
+}
+
+.recipe-section h4 {
+  color: var(--coffee-medium);
+  margin-bottom: var(--spacing-sm);
+  font-size: 1.2rem;
+}
+
+.recipe-section p {
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-xs) 0;
+}
+
+.recipe-section strong {
+  color: var(--coffee-dark);
+}
+
+.recipe-metadata {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+}
+
+.recipe-metadata p {
+  margin-bottom: var(--spacing-xs);
+}
+
+.recipe-metadata strong {
+  color: var(--coffee-dark);
+}
+
+/* Saved Recipes */
+.saved-recipes {
+  margin-top: var(--spacing-xl);
+}
+
+.saved-recipes h3 {
+  color: var(--coffee-dark);
+  margin-bottom: var(--spacing-md);
+  font-size: 1.5rem;
+}
+
+.placeholder {
+  color: var(--coffee-medium);
+  font-style: italic;
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+/* Coffee Results List */
+.results-header {
+  color: var(--coffee-medium);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.95rem;
+}
+
+.coffee-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.coffee-card {
+  background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md);
+  border-left: 4px solid var(--coffee-light);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.coffee-card:hover {
+  border-left-color: var(--coffee-medium);
+  box-shadow: var(--shadow-md);
+  transform: translateX(2px);
+}
+
+.coffee-card.selected {
+  border-left-color: var(--coffee-dark);
+  border-left-width: 6px;
+  background: linear-gradient(135deg, var(--cream) 0%, var(--white) 100%);
+  box-shadow: var(--shadow-md);
+}
+
+.coffee-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.coffee-card-main {
+  flex: 1;
+}
+
+.coffee-card-select {
+  flex-shrink: 0;
+}
+
+.select-indicator {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--coffee-light);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.coffee-card:hover .select-indicator {
+  border-color: var(--coffee-medium);
+}
+
+.coffee-card.selected .select-indicator {
+  border-color: var(--coffee-dark);
+  background: var(--coffee-dark);
+  position: relative;
+}
+
+.coffee-card.selected .select-indicator::after {
+  content: "✓";
+  color: var(--white);
+  font-size: 14px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.coffee-card h3 {
+  color: var(--coffee-dark);
+  font-size: 1.3rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.coffee-card .roaster {
+  color: var(--coffee-medium);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.coffee-card .coffee-link {
+  color: var(--coffee-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.coffee-card .coffee-link:hover {
+  text-decoration: underline;
+}
+
+/* Collapsible details section */
+.coffee-details-section {
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+}
+
+.coffee-details-section summary {
+  cursor: pointer;
+  color: var(--coffee-medium);
+  padding: var(--spacing-xs) 0;
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.coffee-details-section summary:hover {
+  color: var(--coffee-dark);
+}
+
+.coffee-details-section[open] summary {
+  margin-bottom: var(--spacing-xs);
+}
+
+.coffee-details {
+  padding: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-sm);
+}
+
+.coffee-details p {
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.tasting-notes {
+  margin-bottom: var(--spacing-sm);
+}
+
+.tasting-notes strong {
+  color: var(--coffee-dark);
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.notes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.note-tag {
+  background: var(--coffee-light);
+  color: var(--espresso);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+}
+
+.coffee-card .description {
+  font-size: 0.95rem;
+  color: var(--coffee-medium);
+  line-height: 1.5;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--coffee-medium);
+  font-style: italic;
+  padding: var(--spacing-lg);
+}
+
+/* Generate Recipe Section */
+.generate-recipe-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--coffee-light);
+}
+
+.btn-generate {
+  background: linear-gradient(
+    135deg,
+    var(--coffee-dark) 0%,
+    var(--espresso) 100%
+  );
+  font-size: 1.1rem;
+  padding: var(--spacing-md);
+}
+
+.btn-generate:hover {
+  background: linear-gradient(
+    135deg,
+    var(--espresso) 0%,
+    var(--coffee-dark) 100%
+  );
+}
+
+/* Sources and Raw Response */
+.sources-section,
+.raw-response {
+  margin-top: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+.sources-section summary,
+.raw-response summary {
+  cursor: pointer;
+  color: var(--coffee-medium);
+  padding: var(--spacing-sm);
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+}
+
+.sources-section ul,
+.raw-response pre {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+.sources-section ul {
+  list-style: none;
+}
+
+.sources-section li {
+  margin-bottom: var(--spacing-xs);
+  word-break: break-all;
+}
+
+.sources-section a {
+  color: var(--coffee-dark);
+}
+
+.raw-response pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Hidden utility class */
+.hidden {
+  display: none !important;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: var(--spacing-xl) 0 var(--spacing-md);
+  color: var(--coffee-medium);
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .container {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  body {
+    /* Account for iOS safe areas */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

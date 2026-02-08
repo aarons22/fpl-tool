@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Firebase
+.firebase/
+.runtimeconfig.json
+*-debug.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Functions
+functions/node_modules/
+functions/package-lock.json
+functions/.runtimeconfig.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+/tmp/
+*.tmp
+.env.yaml

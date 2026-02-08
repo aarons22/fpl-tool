@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#1976D2" />
+    <meta name="description" content="Firebase Web App Template" />
+    <title>Firebase Web App</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css" />
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Firebase App" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <h1>🚀 Firebase Web App</h1>
+        <p class="tagline">A simple PWA template</p>
+      </header>
+
+      <!-- Main Content -->
+      <main>
+        <div class="card">
+          <h2>Welcome!</h2>
+          <p>This is a basic Firebase web app template with:</p>
+          <ul>
+            <li>Progressive Web App (PWA) support</li>
+            <li>Firebase Hosting</li>
+            <li>Cloud Functions</li>
+            <li>Offline functionality</li>
+            <li>Automated CI/CD via GitHub Actions</li>
+          </ul>
+          
+          <button type="button" class="btn-primary" id="testBtn">
+            Test Cloud Function
+          </button>
+
+          <!-- Loading Indicator -->
+          <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+          </div>
+
+          <!-- Error Message -->
+          <div id="error" class="error hidden">
+            <p></p>
+          </div>
+          
+          <!-- Success Message -->
+          <div id="success" class="success hidden">
+            <p></p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer>
+        <p>Built with Firebase 🔥</p>
+      </footer>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+              console.log("ServiceWorker registered:", registration);
+            })
+            .catch((error) => {
+              console.log("ServiceWorker registration failed:", error);
+            });
+        });
+      }
+    </script>
+
+    <!-- Main App Script -->
+    <script src="/app.js"></script>
+  </body>
+</html>

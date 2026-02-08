@@ -1,0 +1,39 @@
+{
+  "name": "brewfellow Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installGradle": false,
+      "installMaven": false
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "javascript.validate.enable": true
+      }
+    }
+  },
+
+  "postCreateCommand": "npm install && cd functions && npm install",
+
+  "forwardPorts": [5000, 5001, 8080, 9099],
+
+  "remoteUser": "node"
+}
