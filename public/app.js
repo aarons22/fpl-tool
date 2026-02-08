@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loading = document.getElementById("loading");
   const error = document.getElementById("error");
   const success = document.getElementById("success");
+  const transferForm = document.getElementById("transferForm");
 
   // Button click handlers
   if (testFPLBtn) {
@@ -59,6 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (testOddsBtn) {
     testOddsBtn.addEventListener("click", async () => {
       await testOddsAPI();
+    });
+  }
+
+  // Transfer form submit handler
+  if (transferForm) {
+    transferForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await getTransferRecommendations();
     });
   }
 });
@@ -190,4 +199,145 @@ function showSuccess(message) {
 function hideSuccess() {
   const success = document.getElementById("success");
   success.classList.add("hidden");
+}
+
+// Get Transfer Recommendations
+async function getTransferRecommendations() {
+  // Show loading state
+  showLoading(true, "Analyzing your team and generating recommendations...");
+  hideError();
+  hideSuccess();
+
+  // Hide previous recommendations
+  const recommendationsDiv = document.getElementById("recommendations");
+  recommendationsDiv.classList.add("hidden");
+
+  try {
+    console.log("Getting transfer recommendations...");
+
+    // Get form values
+    const teamId = document.getElementById("teamId").value;
+    const transfersRemaining = parseInt(document.getElementById("transfersRemaining").value);
+    const bankBalance = parseFloat(document.getElementById("bankBalance").value);
+    const currentGameweek = document.getElementById("currentGameweek").value;
+
+    // Build request body
+    const requestBody = {
+      teamId: teamId,
+      transfersRemaining: transfersRemaining,
+      bankBalance: bankBalance,
+    };
+
+    if (currentGameweek) {
+      requestBody.currentGameweek = parseInt(currentGameweek);
+    }
+
+    const cloudFunctionUrl = getCloudFunctionUrl("getTransferRecommendations");
+
+    const response = await fetch(cloudFunctionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get transfer recommendations");
+    }
+
+    const data = await response.json();
+    console.log("Transfer recommendations response:", data);
+
+    if (data.success && data.recommendations) {
+      displayRecommendations(data.recommendations, data.metadata);
+      showSuccess(`Found ${data.recommendations.length} transfer recommendation(s)!`);
+    } else {
+      showError(data.message || "Failed to generate recommendations");
+    }
+  } catch (err) {
+    console.error("Error getting transfer recommendations:", err);
+    showError(
+      err.message || "Failed to get transfer recommendations. Please try again."
+    );
+  } finally {
+    showLoading(false);
+  }
+}
+
+// Display transfer recommendations
+function displayRecommendations(recommendations, metadata) {
+  const recommendationsDiv = document.getElementById("recommendations");
+  const recommendationsList = document.getElementById("recommendationsList");
+
+  // Clear previous results
+  recommendationsList.innerHTML = "";
+
+  if (!recommendations || recommendations.length === 0) {
+    recommendationsList.innerHTML = `
+      <div class="no-recommendations">
+        <p>No beneficial transfers found at this time.</p>
+        <p>Your current team looks good! Consider holding your transfers.</p>
+      </div>
+    `;
+    recommendationsDiv.classList.remove("hidden");
+    return;
+  }
+
+  // Add metadata info
+  let metadataHTML = `
+    <div class="recommendation-metadata">
+      <p><strong>Team ID:</strong> ${metadata.teamId}</p>
+      <p><strong>Gameweek:</strong> ${metadata.gameweek}</p>
+      <p><strong>Free Transfers:</strong> ${metadata.transfersRemaining}</p>
+      <p><strong>Bank Balance:</strong> £${metadata.bankBalance}m</p>
+      <p><strong>Odds Data:</strong> ${metadata.oddsAvailable ? '✓ Available' : '✗ Not Available'}</p>
+    </div>
+  `;
+
+  // Display each recommendation
+  recommendations.forEach((rec, index) => {
+    const transferHTML = `
+      <div class="transfer-card">
+        <div class="transfer-header">
+          <h4>Transfer ${index + 1}</h4>
+          <span class="points-gain">+${rec.pointsGain.toFixed(2)} pts</span>
+        </div>
+        <div class="transfer-details">
+          <div class="player-out">
+            <div class="transfer-label">OUT</div>
+            <div class="player-info">
+              <div class="player-name">${rec.playerOut.name}</div>
+              <div class="player-stats">
+                <span>£${rec.playerOut.cost.toFixed(1)}m</span>
+                <span>${rec.playerOut.expectedPoints.toFixed(1)} pts</span>
+                <span>${rec.playerOut.form} form</span>
+              </div>
+            </div>
+          </div>
+          <div class="transfer-arrow">→</div>
+          <div class="player-in">
+            <div class="transfer-label">IN</div>
+            <div class="player-info">
+              <div class="player-name">${rec.playerIn.name}</div>
+              <div class="player-stats">
+                <span>£${rec.playerIn.cost.toFixed(1)}m</span>
+                <span>${rec.playerIn.expectedPoints.toFixed(1)} pts</span>
+                <span>${rec.playerIn.form} form</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="transfer-summary">
+          <p><strong>Cost Change:</strong> ${rec.costChange >= 0 ? '+' : ''}£${rec.costChange.toFixed(1)}m</p>
+          <p><strong>Value Score:</strong> ${rec.playerIn.valueScore.toFixed(2)} pts/£m</p>
+          <p><strong>Ownership:</strong> ${rec.playerIn.selectedByPercent}%</p>
+        </div>
+      </div>
+    `;
+    metadataHTML += transferHTML;
+  });
+
+  recommendationsList.innerHTML = metadataHTML;
+  recommendationsDiv.classList.remove("hidden");
 }

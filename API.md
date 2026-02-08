@@ -419,6 +419,117 @@ curl http://localhost:5001/fpl-tool-dfb38/us-central1/getAvailableSports
 
 ---
 
+### 11. getTransferRecommendations
+
+Generates optimal transfer recommendations based on current team, available budget, and player odds.
+
+**Endpoint:** `POST /getTransferRecommendations`
+
+**Request Body:**
+```json
+{
+  "teamId": "123456",
+  "transfersRemaining": 1,
+  "bankBalance": 5.0,
+  "currentGameweek": 10
+}
+```
+
+**Request Parameters:**
+- `teamId` (required): FPL manager's entry ID
+- `transfersRemaining` (required): Number of free transfers available
+- `bankBalance` (required): Available bank balance in millions (£m)
+- `currentGameweek` (optional): Gameweek number (defaults to current gameweek)
+
+**Response:**
+```json
+{
+  "success": true,
+  "recommendations": [
+    {
+      "playerOut": {
+        "playerId": 123,
+        "name": "Player A",
+        "team": 1,
+        "position": 3,
+        "expectedPoints": 4.5,
+        "cost": 8.0,
+        "valueScore": 0.56,
+        "form": "4.5",
+        "selectedByPercent": "25.3"
+      },
+      "playerIn": {
+        "playerId": 456,
+        "name": "Player B",
+        "team": 2,
+        "position": 3,
+        "expectedPoints": 6.8,
+        "cost": 8.5,
+        "valueScore": 0.80,
+        "form": "6.2",
+        "selectedByPercent": "32.1"
+      },
+      "pointsGain": 2.3,
+      "costChange": 0.5,
+      "valueImprovement": 0.24
+    }
+  ],
+  "metadata": {
+    "teamId": "123456",
+    "gameweek": 10,
+    "transfersRemaining": 1,
+    "bankBalance": 5.0,
+    "oddsAvailable": true
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Scoring System:**
+The function uses FPL's official scoring system to calculate expected points:
+- **Midfielder goal:** 5 points
+- **Forward goal:** 4 points
+- **Defender/Goalkeeper goal:** 6 points
+- **Assist (any position):** 3 points
+- **Clean sheet (DEF/GK):** 4 points
+
+Expected points are calculated based on:
+- Player form from FPL API
+- Betting odds for goals and assists (if available)
+- Historical clean sheet probability for defenders/goalkeepers
+
+**Example (Local):**
+```bash
+curl -X POST http://localhost:5001/fpl-tool-dfb38/us-central1/getTransferRecommendations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "teamId": "123456",
+    "transfersRemaining": 1,
+    "bankBalance": 5.0,
+    "currentGameweek": 10
+  }'
+```
+
+**Example (Production):**
+```bash
+curl -X POST https://us-central1-fpl-tool-dfb38.cloudfunctions.net/getTransferRecommendations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "teamId": "123456",
+    "transfersRemaining": 1,
+    "bankBalance": 5.0
+  }'
+```
+
+**Notes:**
+- Recommendations are sorted by expected points gain (highest first)
+- Only positions that match are considered (e.g., MID for MID)
+- Budget constraints are enforced based on bank balance
+- If `ODDS_API_KEY` is set, the function will incorporate betting odds for more accurate predictions
+- Without odds data, recommendations are based solely on FPL form and stats
+
+---
+
 ## Error Responses
 
 All endpoints return errors in this format:
