@@ -7,8 +7,8 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <meta name="theme-color" content="#1976D2" />
-    <meta name="description" content="Firebase Web App Template" />
-    <title>Firebase Web App</title>
+    <meta name="description" content="FPL Transfer Optimizer - Get smart transfer recommendations for Fantasy Premier League" />
+    <title>FPL Transfer Optimizer</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -28,42 +28,89 @@
     <div class="container">
       <!-- Header -->
       <header>
-        <h1>🚀 Firebase Web App</h1>
-        <p class="tagline">A simple PWA template</p>
+        <h1>⚽ FPL Transfer Optimizer</h1>
+        <p class="tagline">Smart transfer recommendations powered by data</p>
       </header>
 
       <!-- Main Content -->
       <main>
         <div class="card">
-          <h2>Welcome!</h2>
-          <p>This is a basic Firebase web app template with:</p>
-          <ul>
-            <li>Progressive Web App (PWA) support</li>
-            <li>Firebase Hosting</li>
-            <li>Cloud Functions</li>
-            <li>Offline functionality</li>
-            <li>Automated CI/CD via GitHub Actions</li>
-          </ul>
-          
-          <button type="button" class="btn-primary" id="testBtn">
-            Test Cloud Function
-          </button>
+          <h2>FPL Transfer Optimizer</h2>
+          <p>Get optimized transfer recommendations for your Fantasy Premier League team based on expected points and fixture difficulty.</p>
+
+          <form id="fplForm" class="fpl-form">
+            <div class="form-group">
+              <label for="teamId">FPL Team ID</label>
+              <input
+                type="number"
+                id="teamId"
+                name="teamId"
+                required
+                placeholder="e.g., 123456"
+                min="1"
+              />
+              <small>Find your team ID in your FPL URL: fantasy.premierleague.com/entry/<strong>YOUR_ID</strong>/</small>
+            </div>
+
+            <div class="form-group">
+              <label for="transfersRemaining">Free Transfers Remaining</label>
+              <input
+                type="number"
+                id="transfersRemaining"
+                name="transfersRemaining"
+                required
+                placeholder="1"
+                min="0"
+                max="5"
+                value="1"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="bank">Bank (£ millions)</label>
+              <input
+                type="number"
+                id="bank"
+                name="bank"
+                required
+                placeholder="0.0"
+                step="0.1"
+                min="0"
+                value="0.0"
+              />
+            </div>
+
+            <button type="submit" class="btn-primary">
+              Get Transfer Recommendations
+            </button>
+          </form>
 
           <!-- Loading Indicator -->
           <div id="loading" class="loading hidden">
             <div class="spinner"></div>
-            <p>Loading...</p>
+            <p>Analyzing your team...</p>
           </div>
 
           <!-- Error Message -->
           <div id="error" class="error hidden">
             <p></p>
           </div>
-          
-          <!-- Success Message -->
-          <div id="success" class="success hidden">
-            <p></p>
+
+          <!-- Results -->
+          <div id="results" class="results hidden">
+            <h3>Transfer Recommendations</h3>
+            <div id="recommendations"></div>
+            <div id="summary" class="summary"></div>
           </div>
+        </div>
+
+        <div class="card">
+          <h2>How It Works</h2>
+          <ul>
+            <li><strong>Weighting System:</strong> Midfielder goals = 5pts, Forward goals = 4pts, Defender goals = 6pts, Assists = 3pts, Clean sheets = 4pts</li>
+            <li><strong>Expected Points:</strong> Uses FPL's expected goals (xG) and expected assists (xA) data combined with form and fixture difficulty</li>
+            <li><strong>Smart Recommendations:</strong> Considers your budget, available transfers, and finds the best value replacements</li>
+          </ul>
         </div>
       </main>
 
