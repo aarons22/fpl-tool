@@ -579,6 +579,338 @@ exports.getAvailableSports = functions.https.onRequest((request, response) => {
 });
 
 /**
+ * Cloud Function: getTransferRecommendations
+ *
+ * Recommends transfers based on current team, odds, and FPL points system
+ *
+ * Request: POST /getTransferRecommendations
+ * Body:
+ * {
+ *   "teamId": "123456",
+ *   "transfersRemaining": 1,
+ *   "bankBalance": 5.0,
+ *   "currentGameweek": 10
+ * }
+ *
+ * Response:
+ * {
+ *   "recommendations": [...]
+ * }
+ */
+exports.getTransferRecommendations = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    try {
+      console.log('getTransferRecommendations function called');
+
+      // Validate request method
+      if (request.method !== 'POST') {
+        return response.status(405).json({
+          success: false,
+          error: 'Method not allowed',
+          message: 'Please use POST method',
+        });
+      }
+
+      const {teamId, transfersRemaining, bankBalance, currentGameweek} = request.body;
+
+      // Validate required parameters
+      if (!teamId) {
+        return response.status(400).json({
+          success: false,
+          error: 'Team ID is required',
+          message: 'Please provide teamId in request body',
+        });
+      }
+
+      if (transfersRemaining === undefined || transfersRemaining === null) {
+        return response.status(400).json({
+          success: false,
+          error: 'Transfers remaining is required',
+          message: 'Please provide transfersRemaining in request body',
+        });
+      }
+
+      if (bankBalance === undefined || bankBalance === null) {
+        return response.status(400).json({
+          success: false,
+          error: 'Bank balance is required',
+          message: 'Please provide bankBalance in request body',
+        });
+      }
+
+      console.log(`Analyzing team ${teamId} with ${transfersRemaining} transfers and £${bankBalance}m budget`);
+
+      const fetch = (await import('node-fetch')).default;
+
+      // Fetch bootstrap data (all players)
+      const bootstrapResponse = await fetch(`${FPL_API_BASE}/bootstrap-static/`);
+      if (!bootstrapResponse.ok) {
+        throw new Error('Failed to fetch FPL bootstrap data');
+      }
+      const bootstrap = await bootstrapResponse.json();
+
+      // Fetch current team picks
+      const gameweek = currentGameweek || bootstrap.events.find((e) => e.is_current).id;
+      const picksResponse = await fetch(`${FPL_API_BASE}/entry/${teamId}/event/${gameweek}/picks/`);
+      if (!picksResponse.ok) {
+        throw new Error('Failed to fetch team picks');
+      }
+      const picksData = await picksResponse.json();
+
+      // Get API key for odds
+      const oddsApiKey = process.env.ODDS_API_KEY;
+      let oddsData = null;
+
+      if (oddsApiKey) {
+        try {
+          // Fetch player odds (goals, assists, clean sheets)
+          const oddsResponse = await fetch(
+              `${ODDS_API_BASE}/sports/soccer_epl/odds/?` +
+              `regions=uk&oddsFormat=decimal&markets=player_anytime_goalscorer,player_assists&apiKey=${oddsApiKey}`,
+          );
+          if (oddsResponse.ok) {
+            oddsData = await oddsResponse.json();
+          }
+        } catch (oddsError) {
+          console.warn('Could not fetch odds data:', oddsError.message);
+        }
+      }
+
+      // Calculate expected points for all players
+      const playerScores = calculatePlayerExpectedPoints(
+          bootstrap.elements,
+          bootstrap.element_types,
+          oddsData,
+      );
+
+      // Get current team player IDs
+      const currentPlayerIds = picksData.picks.map((pick) => pick.element);
+
+      // Calculate recommendations
+      const recommendations = generateTransferRecommendations(
+          currentPlayerIds,
+          playerScores,
+          bootstrap.elements,
+          bootstrap.element_types,
+          transfersRemaining,
+          bankBalance,
+          picksData.entry_history.bank,
+      );
+
+      return response.status(200).json({
+        success: true,
+        recommendations: recommendations,
+        metadata: {
+          teamId: teamId,
+          gameweek: gameweek,
+          transfersRemaining: transfersRemaining,
+          bankBalance: bankBalance,
+          oddsAvailable: !!oddsData,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error in getTransferRecommendations:', error);
+      return response.status(500).json({
+        success: false,
+        error: 'Failed to generate transfer recommendations',
+        message: error.message,
+      });
+    }
+  });
+});
+
+/**
+ * Calculate expected points for all players based on odds and FPL scoring system
+ *
+ * Scoring:
+ * - Midfielder goal: 5 points
+ * - Forward goal: 4 points
+ * - Defender goal: 6 points
+ * - Assist: 3 points
+ * - Clean sheet (defender/goalkeeper): 4 points
+ *
+ * @param {Array} players - Array of player objects from FPL API
+ * @param {Array} elementTypes - Array of position types
+ * @param {Object|null} oddsData - Odds data from The Odds API (optional)
+ * @return {Object} Object mapping player IDs to their score data
+ */
+function calculatePlayerExpectedPoints(players, elementTypes, oddsData) {
+  const playerScores = {};
+
+  // Position ID mapping: 1=GK, 2=DEF, 3=MID, 4=FWD
+  const positionPoints = {
+    1: {goal: 6, assist: 3, cleanSheet: 4}, // GK
+    2: {goal: 6, assist: 3, cleanSheet: 4}, // DEF
+    3: {goal: 5, assist: 3, cleanSheet: 1}, // MID
+    4: {goal: 4, assist: 3, cleanSheet: 0}, // FWD
+  };
+
+  players.forEach((player) => {
+    const position = player.element_type;
+    const points = positionPoints[position];
+
+    // Base expected points from form and recent stats
+    let expectedPoints = parseFloat(player.form) || 0;
+
+    // Add points based on odds if available
+    if (oddsData) {
+      const playerOdds = findPlayerOdds(player, oddsData);
+      if (playerOdds) {
+        // Convert decimal odds to probability and calculate expected points
+        if (playerOdds.goalOdds) {
+          const goalProbability = 1 / playerOdds.goalOdds;
+          expectedPoints += goalProbability * points.goal;
+        }
+        if (playerOdds.assistOdds) {
+          const assistProbability = 1 / playerOdds.assistOdds;
+          expectedPoints += assistProbability * points.assist;
+        }
+        // Note: Clean sheet odds would come from a different market
+        // For now, we'll use defensive stats as a proxy
+        if (position <= 2) { // GK or DEF
+          const cleanSheetChance = parseFloat(player.clean_sheets_per_90) || 0;
+          expectedPoints += (cleanSheetChance / 90) * points.cleanSheet;
+        }
+      }
+    }
+
+    playerScores[player.id] = {
+      playerId: player.id,
+      name: player.web_name,
+      team: player.team,
+      position: position,
+      expectedPoints: expectedPoints,
+      cost: player.now_cost / 10, // Convert from 0.1m units to actual millions
+      valueScore: expectedPoints / (player.now_cost / 10), // Points per million
+      form: player.form,
+      selectedByPercent: player.selected_by_percent,
+    };
+  });
+
+  return playerScores;
+}
+
+/**
+ * Find odds for a specific player in the odds data
+ *
+ * @param {Object} player - Player object from FPL API
+ * @param {Object} oddsData - Odds data from The Odds API
+ * @return {Object|null} Object with goalOdds and assistOdds, or null if not found
+ */
+function findPlayerOdds(player, oddsData) {
+  if (!oddsData || !Array.isArray(oddsData)) {
+    return null;
+  }
+
+  // Player name matching is tricky - odds use full names, FPL uses web_name
+  // This is a simplified version - production would need better name matching
+  const playerName = player.web_name.toLowerCase();
+
+  for (const event of oddsData) {
+    if (!event.bookmakers) continue;
+
+    for (const bookmaker of event.bookmakers) {
+      if (!bookmaker.markets) continue;
+
+      for (const market of bookmaker.markets) {
+        if (!market.outcomes) continue;
+
+        for (const outcome of market.outcomes) {
+          if (outcome.name && outcome.name.toLowerCase().includes(playerName)) {
+            const result = {};
+            if (market.key === 'player_anytime_goalscorer') {
+              result.goalOdds = outcome.price;
+            } else if (market.key === 'player_assists') {
+              result.assistOdds = outcome.price;
+            }
+            return result;
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Generate transfer recommendations
+ *
+ * @param {Array} currentPlayerIds - Array of player IDs in current team
+ * @param {Object} playerScores - Object mapping player IDs to score data
+ * @param {Array} allPlayers - Array of all players from FPL API
+ * @param {Array} elementTypes - Array of position types
+ * @param {number} transfersRemaining - Number of free transfers available
+ * @param {number} bankBalance - Bank balance in millions
+ * @param {number} actualBank - Actual bank balance from FPL API
+ * @return {Array} Array of recommended transfers
+ */
+function generateTransferRecommendations(
+    currentPlayerIds,
+    playerScores,
+    allPlayers,
+    elementTypes,
+    transfersRemaining,
+    bankBalance,
+    actualBank,
+) {
+  const recommendations = [];
+
+  // Create a map of current players with their scores
+  const currentPlayers = currentPlayerIds.map((id) => playerScores[id]).filter(Boolean);
+
+  // Find available players (not in current team)
+  const availablePlayers = Object.values(playerScores)
+      .filter((player) => !currentPlayerIds.includes(player.playerId))
+      .sort((a, b) => b.valueScore - a.valueScore); // Sort by value (points per million)
+
+  // For each transfer slot, find best swap
+  const transferOpportunities = [];
+
+  for (const currentPlayer of currentPlayers) {
+    for (const availablePlayer of availablePlayers) {
+      // Check if positions match
+      if (currentPlayer.position !== availablePlayer.position) {
+        continue;
+      }
+
+      // Check if we can afford the transfer
+      const costDiff = availablePlayer.cost - currentPlayer.cost;
+      const availableBudget = (actualBank || bankBalance) / 10; // Convert to millions
+
+      if (costDiff > availableBudget) {
+        continue;
+      }
+
+      // Calculate expected points gain
+      const pointsGain = availablePlayer.expectedPoints - currentPlayer.expectedPoints;
+
+      // Only recommend if there's a positive points gain
+      if (pointsGain > 0) {
+        transferOpportunities.push({
+          playerOut: currentPlayer,
+          playerIn: availablePlayer,
+          pointsGain: pointsGain,
+          costChange: costDiff,
+          valueImprovement: availablePlayer.valueScore - currentPlayer.valueScore,
+        });
+      }
+    }
+  }
+
+  // Sort by points gain
+  transferOpportunities.sort((a, b) => b.pointsGain - a.pointsGain);
+
+  // Take top N recommendations based on transfers remaining
+  for (let i = 0; i < Math.min(transfersRemaining, transferOpportunities.length); i++) {
+    recommendations.push(transferOpportunities[i]);
+  }
+
+  return recommendations;
+}
+
+/**
  * Cloud Function: helloWorld
  *
  * A simple example function that returns a greeting message

@@ -45,11 +45,11 @@
             <li>Make data-driven transfer decisions</li>
             <li>Offline-first Progressive Web App</li>
           </ul>
-          
+
           <button type="button" class="btn-primary" id="testFPLBtn">
             Test FPL API
           </button>
-          
+
           <button type="button" class="btn-primary" id="testOddsBtn">
             Test Player Props Odds
           </button>
@@ -64,10 +64,54 @@
           <div id="error" class="error hidden">
             <p></p>
           </div>
-          
+
           <!-- Success Message -->
           <div id="success" class="success hidden">
             <p></p>
+          </div>
+        </div>
+
+        <!-- Transfer Recommendations Section -->
+        <div class="card">
+          <h2>Transfer Recommendations</h2>
+          <p>Get optimal transfer recommendations based on player odds and FPL scoring system.</p>
+
+          <form id="transferForm">
+            <div class="form-group">
+              <label for="teamId">FPL Team ID:</label>
+              <input type="text" id="teamId" name="teamId" required
+                     placeholder="e.g., 123456" />
+              <small>Find your Team ID in the FPL website URL</small>
+            </div>
+
+            <div class="form-group">
+              <label for="transfersRemaining">Free Transfers:</label>
+              <input type="number" id="transfersRemaining" name="transfersRemaining"
+                     min="0" max="15" value="1" required />
+            </div>
+
+            <div class="form-group">
+              <label for="bankBalance">Bank Balance (£m):</label>
+              <input type="number" id="bankBalance" name="bankBalance"
+                     step="0.1" min="0" max="100" value="0" required />
+            </div>
+
+            <div class="form-group">
+              <label for="currentGameweek">Gameweek (optional):</label>
+              <input type="number" id="currentGameweek" name="currentGameweek"
+                     min="1" max="38" placeholder="Current gameweek" />
+              <small>Leave blank for current gameweek</small>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              Get Recommendations
+            </button>
+          </form>
+
+          <!-- Recommendations Results -->
+          <div id="recommendations" class="recommendations hidden">
+            <h3>Recommended Transfers</h3>
+            <div id="recommendationsList"></div>
           </div>
         </div>
       </main>
