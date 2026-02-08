@@ -154,27 +154,140 @@ curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLLiveGameweek?event=
 
 ---
 
-## The Odds API Functions
+### 5. getFPLTeam
 
-### 5. getSportsOdds
+Fetches a Fantasy Premier League manager's team information by entry ID.
 
-Fetches sports betting odds for a specific sport from The Odds API.
-
-**Endpoint:** `GET /getSportsOdds?sport={sport_key}&regions={regions}&oddsFormat={format}`
+**Endpoint:** `GET /getFPLTeam?id={entry_id}`
 
 **Query Parameters:**
-- `sport` (optional): Sport key (default: `soccer_epl`). Common values:
-  - `soccer_epl` - English Premier League
-  - `soccer_uefa_champs_league` - Champions League
-  - See `getAvailableSports` for full list
+- `id` (required): Manager's entry ID (team ID)
+
+**Response:**
+```json
+{
+  "success": true,
+  "team": {
+    "id": 123456,
+    "name": "My FPL Team",
+    "player_first_name": "John",
+    "player_last_name": "Doe",
+    "summary_overall_points": 1234,
+    "summary_overall_rank": 50000,
+    "current_event": 10,
+    "leagues": {...}
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeam?id=123456"
+```
+
+---
+
+### 6. getFPLTeamPicks
+
+Fetches a manager's team selections (squad) for a specific gameweek.
+
+**Endpoint:** `GET /getFPLTeamPicks?id={entry_id}&event={gameweek}`
+
+**Query Parameters:**
+- `id` (required): Manager's entry ID
+- `event` (required): Gameweek number
+
+**Response:**
+```json
+{
+  "success": true,
+  "picks": {
+    "active_chip": null,
+    "automatic_subs": [],
+    "entry_history": {
+      "event": 1,
+      "points": 85,
+      "total_points": 85,
+      "rank": 123456
+    },
+    "picks": [
+      {
+        "element": 123,
+        "position": 1,
+        "is_captain": true,
+        "is_vice_captain": false,
+        "multiplier": 2
+      }
+    ]
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeamPicks?id=123456&event=1"
+```
+
+---
+
+### 7. getFPLTeamTransfers
+
+Fetches a manager's transfer history.
+
+**Endpoint:** `GET /getFPLTeamTransfers?id={entry_id}`
+
+**Query Parameters:**
+- `id` (required): Manager's entry ID
+
+**Response:**
+```json
+{
+  "success": true,
+  "transfers": [
+    {
+      "element_in": 234,
+      "element_in_cost": 85,
+      "element_out": 123,
+      "element_out_cost": 80,
+      "entry": 123456,
+      "event": 2,
+      "time": "2024-08-18T10:30:00Z"
+    }
+  ],
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeamTransfers?id=123456"
+```
+
+---
+
+## The Odds API Functions (Player Props)
+
+### 8. getPlayerPropsOdds
+
+Fetches player-level betting odds for goals, assists, and other player props.
+
+**Endpoint:** `GET /getPlayerPropsOdds?sport={sport_key}&regions={regions}&markets={markets}`
+
+**Query Parameters:**
+- `sport` (optional): Sport key (default: `soccer_epl`)
 - `regions` (optional): Bookmaker regions (default: `uk`). Options: `us`, `uk`, `eu`, `au`
 - `oddsFormat` (optional): Odds format (default: `decimal`). Options: `decimal`, `american`
+- `markets` (optional): Comma-separated player prop markets (default: `player_goal_scorer,player_assists`)
+  - Available markets: `player_goal_scorer`, `player_assists`, `player_anytime_goalscorer`, `player_shots`, `player_shots_on_target`
 
 **Response:**
 ```json
 {
   "success": true,
   "sport": "soccer_epl",
+  "markets": "player_goal_scorer,player_assists",
   "odds": [
     {
       "id": "abc123",
@@ -188,11 +301,10 @@ Fetches sports betting odds for a specific sport from The Odds API.
           "title": "Bet365",
           "markets": [
             {
-              "key": "h2h",
+              "key": "player_goal_scorer",
               "outcomes": [
-                {"name": "Arsenal", "price": 1.85},
-                {"name": "Manchester United", "price": 3.50},
-                {"name": "Draw", "price": 3.20}
+                {"name": "Mohamed Salah", "description": "Anytime Goalscorer", "price": 2.50},
+                {"name": "Erling Haaland", "description": "Anytime Goalscorer", "price": 1.85}
               ]
             }
           ]
@@ -206,21 +318,75 @@ Fetches sports betting odds for a specific sport from The Odds API.
 
 **Examples:**
 ```bash
-# Premier League odds (default)
-curl http://localhost:5001/fpl-tool-dfb38/us-central1/getSportsOdds
+# Player goals and assists (default)
+curl http://localhost:5001/fpl-tool-dfb38/us-central1/getPlayerPropsOdds
 
-# Premier League with specific region
-curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getSportsOdds?sport=soccer_epl&regions=uk"
+# Specific markets
+curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getPlayerPropsOdds?sport=soccer_epl&regions=uk&markets=player_goal_scorer,player_assists"
 
-# American odds format
-curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getSportsOdds?sport=soccer_epl&regions=us&oddsFormat=american"
+# Anytime goalscorer odds
+curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getPlayerPropsOdds?markets=player_anytime_goalscorer"
 ```
 
 **Note:** Requires `ODDS_API_KEY` environment variable to be set.
 
 ---
 
-### 6. getAvailableSports
+### 9. getCleanSheetOdds
+
+Fetches clean sheet odds for teams and goalkeepers.
+
+**Endpoint:** `GET /getCleanSheetOdds?sport={sport_key}&regions={regions}`
+
+**Query Parameters:**
+- `sport` (optional): Sport key (default: `soccer_epl`)
+- `regions` (optional): Bookmaker regions (default: `uk`)
+- `oddsFormat` (optional): Odds format (default: `decimal`)
+
+**Response:**
+```json
+{
+  "success": true,
+  "sport": "soccer_epl",
+  "markets": "btts,team_totals",
+  "odds": [
+    {
+      "id": "abc123",
+      "sport_key": "soccer_epl",
+      "commence_time": "2024-08-10T14:00:00Z",
+      "home_team": "Arsenal",
+      "away_team": "Manchester United",
+      "bookmakers": [
+        {
+          "key": "bet365",
+          "title": "Bet365",
+          "markets": [
+            {
+              "key": "btts",
+              "outcomes": [
+                {"name": "Yes", "price": 1.70},
+                {"name": "No", "price": 2.10}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:5001/fpl-tool-dfb38/us-central1/getCleanSheetOdds
+```
+
+**Note:** Requires `ODDS_API_KEY` environment variable to be set. BTTS (Both Teams To Score) "No" indicates a clean sheet likelihood.
+
+---
+
+### 10. getAvailableSports
 
 Fetches the list of available sports from The Odds API.
 
@@ -341,6 +507,15 @@ Go to: Repository Settings → Secrets and variables → Actions → New reposit
    
    # Live gameweek
    curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLLiveGameweek?event=1"
+   
+   # Team info by entry ID
+   curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeam?id=123456"
+   
+   # Team picks for gameweek
+   curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeamPicks?id=123456&event=1"
+   
+   # Transfer history
+   curl "http://localhost:5001/fpl-tool-dfb38/us-central1/getFPLTeamTransfers?id=123456"
    ```
 
 3. Test Odds API functions (requires API key):
@@ -348,8 +523,11 @@ Go to: Repository Settings → Secrets and variables → Actions → New reposit
    # Available sports
    curl http://localhost:5001/fpl-tool-dfb38/us-central1/getAvailableSports
    
-   # Premier League odds
-   curl http://localhost:5001/fpl-tool-dfb38/us-central1/getSportsOdds
+   # Player prop odds (goals, assists)
+   curl http://localhost:5001/fpl-tool-dfb38/us-central1/getPlayerPropsOdds
+   
+   # Clean sheet odds
+   curl http://localhost:5001/fpl-tool-dfb38/us-central1/getCleanSheetOdds
    ```
 
 ---

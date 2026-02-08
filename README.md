@@ -60,8 +60,9 @@ Choose the guide that matches your needs:
 
 This FPL tool provides everything you need for fantasy football analytics:
 
-- ⚽ **FPL API Integration** - Access Fantasy Premier League player and team data
-- 🎲 **Odds API Integration** - Sports betting odds for informed decision-making
+- ⚽ **FPL API Integration** - Access Fantasy Premier League player, team, and manager data
+- 👥 **Manager Team Tracking** - View any FPL team's picks, transfers, and history
+- 🎲 **Player Props Odds** - Betting odds for goals, assists, and clean sheets
 - 📱 **Progressive Web App (PWA)** - Installable, works offline
 - ☁️ **Serverless Backend** - Cloud Functions for API data processing
 - 🗄️ **Database** - Firestore for storing player stats and analysis
@@ -125,14 +126,18 @@ This tool integrates with two external APIs:
   - `/fixtures/` - Match fixtures
   - `/element-summary/{player_id}/` - Player details and history
   - `/event/{gameweek}/live/` - Live gameweek data
+  - `/entry/{entry_id}/` - Manager team information
+  - `/entry/{entry_id}/event/{event_id}/picks/` - Team picks for gameweek
+  - `/entry/{entry_id}/transfers/` - Transfer history
 - **Documentation**: Community-driven, see [FPL API Guide](https://www.oliverlooney.com/blogs/FPL-APIs-Explained)
 
-### 2. The Odds API
+### 2. The Odds API (Player Props)
 - **Base URL**: `https://api.the-odds-api.com/v4/`
 - **Authentication**: API key required (get yours at [the-odds-api.com](https://the-odds-api.com/))
 - **Key Endpoints**:
   - `/sports/` - List available sports
-  - `/sports/{sport}/odds/` - Get odds for specific sport
+  - `/sports/{sport}/odds/?markets=player_goal_scorer,player_assists` - Player-level odds
+- **Player Markets**: Goals, assists, anytime goalscorer, clean sheets
 - **Configuration**: Set `ODDS_API_KEY` environment variable (see below)
 - **Documentation**: [Official Docs](https://the-odds-api.com/liveapi/guides/v4/)
 

@@ -218,24 +218,203 @@ exports.getFPLLiveGameweek = functions.https.onRequest((request, response) => {
 });
 
 /**
- * Cloud Function: getSportsOdds
+ * Cloud Function: getFPLTeam
  *
- * Fetches sports betting odds from The Odds API
+ * Fetches a Fantasy Premier League manager's team information
  *
- * Request: GET /getSportsOdds?sport={sport_key}&regions={regions}
- * Example: /getSportsOdds?sport=soccer_epl&regions=uk
+ * Request: GET /getFPLTeam?id={entry_id}
  *
  * Response:
  * {
- *   "odds": [...]  // Upcoming events with odds from bookmakers
+ *   "team": {...}  // Manager's team details, points, rankings
  * }
  */
-exports.getSportsOdds = functions.https.onRequest((request, response) => {
+exports.getFPLTeam = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    try {
+      const entryId = request.query.id;
+
+      if (!entryId) {
+        return response.status(400).json({
+          success: false,
+          error: 'Entry ID is required',
+          message: 'Please provide entry ID in query parameter: ?id=123456',
+        });
+      }
+
+      console.log('getFPLTeam called for entry:', entryId);
+
+      const fetch = (await import('node-fetch')).default;
+      const apiResponse = await fetch(
+          `${FPL_API_BASE}/entry/${entryId}/`,
+      );
+
+      if (!apiResponse.ok) {
+        throw new Error(`FPL API returned ${apiResponse.status}`);
+      }
+
+      const data = await apiResponse.json();
+
+      return response.status(200).json({
+        success: true,
+        team: data,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error in getFPLTeam:', error);
+      return response.status(500).json({
+        success: false,
+        error: 'Failed to fetch FPL team data',
+        message: error.message,
+      });
+    }
+  });
+});
+
+/**
+ * Cloud Function: getFPLTeamPicks
+ *
+ * Fetches a manager's team picks for a specific gameweek
+ *
+ * Request: GET /getFPLTeamPicks?id={entry_id}&event={gameweek}
+ *
+ * Response:
+ * {
+ *   "picks": {
+ *     "active_chip": null,
+ *     "automatic_subs": [...],
+ *     "entry_history": {...},
+ *     "picks": [...]  // Squad with captain, bench, positions
+ *   }
+ * }
+ */
+exports.getFPLTeamPicks = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    try {
+      const entryId = request.query.id;
+      const eventId = request.query.event;
+
+      if (!entryId) {
+        return response.status(400).json({
+          success: false,
+          error: 'Entry ID is required',
+          message: 'Please provide entry ID: ?id=123456&event=1',
+        });
+      }
+
+      if (!eventId) {
+        return response.status(400).json({
+          success: false,
+          error: 'Event ID is required',
+          message: 'Please provide gameweek event ID: ?id=123456&event=1',
+        });
+      }
+
+      console.log('getFPLTeamPicks called for entry:', entryId, 'event:', eventId);
+
+      const fetch = (await import('node-fetch')).default;
+      const apiResponse = await fetch(
+          `${FPL_API_BASE}/entry/${entryId}/event/${eventId}/picks/`,
+      );
+
+      if (!apiResponse.ok) {
+        throw new Error(`FPL API returned ${apiResponse.status}`);
+      }
+
+      const data = await apiResponse.json();
+
+      return response.status(200).json({
+        success: true,
+        picks: data,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error in getFPLTeamPicks:', error);
+      return response.status(500).json({
+        success: false,
+        error: 'Failed to fetch team picks',
+        message: error.message,
+      });
+    }
+  });
+});
+
+/**
+ * Cloud Function: getFPLTeamTransfers
+ *
+ * Fetches a manager's transfer history
+ *
+ * Request: GET /getFPLTeamTransfers?id={entry_id}
+ *
+ * Response:
+ * {
+ *   "transfers": [...]  // All transfers made by the manager
+ * }
+ */
+exports.getFPLTeamTransfers = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    try {
+      const entryId = request.query.id;
+
+      if (!entryId) {
+        return response.status(400).json({
+          success: false,
+          error: 'Entry ID is required',
+          message: 'Please provide entry ID in query parameter: ?id=123456',
+        });
+      }
+
+      console.log('getFPLTeamTransfers called for entry:', entryId);
+
+      const fetch = (await import('node-fetch')).default;
+      const apiResponse = await fetch(
+          `${FPL_API_BASE}/entry/${entryId}/transfers/`,
+      );
+
+      if (!apiResponse.ok) {
+        throw new Error(`FPL API returned ${apiResponse.status}`);
+      }
+
+      const data = await apiResponse.json();
+
+      return response.status(200).json({
+        success: true,
+        transfers: data,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error in getFPLTeamTransfers:', error);
+      return response.status(500).json({
+        success: false,
+        error: 'Failed to fetch transfer history',
+        message: error.message,
+      });
+    }
+  });
+});
+
+/**
+ * Cloud Function: getPlayerPropsOdds
+ *
+ * Fetches player prop odds (goals, assists, clean sheets) from The Odds API
+ *
+ * Request: GET /getPlayerPropsOdds?sport={sport_key}&regions={regions}
+ * Example: /getPlayerPropsOdds?sport=soccer_epl&regions=uk&
+ *          markets=player_goal_scorer,player_assists
+ *
+ * Response:
+ * {
+ *   "odds": [...]  // Player prop odds from bookmakers
+ * }
+ */
+exports.getPlayerPropsOdds = functions.https.onRequest((request, response) => {
   return cors(request, response, async () => {
     try {
       const sport = request.query.sport || 'soccer_epl';
       const regions = request.query.regions || 'uk';
       const oddsFormat = request.query.oddsFormat || 'decimal';
+      // Player prop markets: player_goal_scorer, player_assists, player_anytime_goalscorer
+      const markets = request.query.markets || 'player_goal_scorer,player_assists';
 
       // Get API key from environment
       const apiKey = process.env.ODDS_API_KEY;
@@ -248,11 +427,11 @@ exports.getSportsOdds = functions.https.onRequest((request, response) => {
         });
       }
 
-      console.log('getSportsOdds called for sport:', sport);
+      console.log('getPlayerPropsOdds called for sport:', sport, 'markets:', markets);
 
       const fetch = (await import('node-fetch')).default;
       const url = `${ODDS_API_BASE}/sports/${sport}/odds/?` +
-                  `regions=${regions}&oddsFormat=${oddsFormat}&apiKey=${apiKey}`;
+                  `regions=${regions}&oddsFormat=${oddsFormat}&markets=${markets}&apiKey=${apiKey}`;
 
       const apiResponse = await fetch(url);
 
@@ -265,14 +444,79 @@ exports.getSportsOdds = functions.https.onRequest((request, response) => {
       return response.status(200).json({
         success: true,
         sport: sport,
+        markets: markets,
         odds: data,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Error in getSportsOdds:', error);
+      console.error('Error in getPlayerPropsOdds:', error);
       return response.status(500).json({
         success: false,
-        error: 'Failed to fetch sports odds',
+        error: 'Failed to fetch player props odds',
+        message: error.message,
+      });
+    }
+  });
+});
+
+/**
+ * Cloud Function: getCleanSheetOdds
+ *
+ * Fetches clean sheet odds for teams/goalkeepers from The Odds API
+ *
+ * Request: GET /getCleanSheetOdds?sport={sport_key}&regions={regions}
+ *
+ * Response:
+ * {
+ *   "odds": [...]  // Clean sheet odds from bookmakers
+ * }
+ */
+exports.getCleanSheetOdds = functions.https.onRequest((request, response) => {
+  return cors(request, response, async () => {
+    try {
+      const sport = request.query.sport || 'soccer_epl';
+      const regions = request.query.regions || 'uk';
+      const oddsFormat = request.query.oddsFormat || 'decimal';
+      // Markets for clean sheets and defensive props
+      const markets = 'btts,team_totals'; // Both teams to score (for clean sheet analysis)
+
+      // Get API key from environment
+      const apiKey = process.env.ODDS_API_KEY;
+
+      if (!apiKey) {
+        return response.status(500).json({
+          success: false,
+          error: 'API key not configured',
+          message: 'ODDS_API_KEY environment variable is not set',
+        });
+      }
+
+      console.log('getCleanSheetOdds called for sport:', sport);
+
+      const fetch = (await import('node-fetch')).default;
+      const url = `${ODDS_API_BASE}/sports/${sport}/odds/?` +
+                  `regions=${regions}&oddsFormat=${oddsFormat}&markets=${markets}&apiKey=${apiKey}`;
+
+      const apiResponse = await fetch(url);
+
+      if (!apiResponse.ok) {
+        throw new Error(`Odds API returned ${apiResponse.status}`);
+      }
+
+      const data = await apiResponse.json();
+
+      return response.status(200).json({
+        success: true,
+        sport: sport,
+        markets: markets,
+        odds: data,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error in getCleanSheetOdds:', error);
+      return response.status(500).json({
+        success: false,
+        error: 'Failed to fetch clean sheet odds',
         message: error.message,
       });
     }

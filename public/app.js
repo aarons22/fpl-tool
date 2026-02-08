@@ -105,45 +105,45 @@ async function testFPLAPI() {
   }
 }
 
-// Test Odds API
+// Test Odds API (now tests player props)
 async function testOddsAPI() {
   // Show loading state
-  showLoading(true, "Fetching odds data...");
+  showLoading(true, "Fetching player odds data...");
   hideError();
   hideSuccess();
 
   try {
-    console.log("Testing Odds API...");
+    console.log("Testing Player Props Odds API...");
 
-    const cloudFunctionUrl = getCloudFunctionUrl("getAvailableSports");
+    const cloudFunctionUrl = getCloudFunctionUrl("getPlayerPropsOdds");
 
     const response = await fetch(cloudFunctionUrl, {
       method: "GET",
     });
 
     if (!response.ok) {
-      throw new Error("Failed to call Odds API function");
+      throw new Error("Failed to call Player Props API function");
     }
 
     const data = await response.json();
-    console.log("Odds API response:", data);
+    console.log("Player Props API response:", data);
 
-    if (data.success && data.sports) {
-      const sportCount = data.sports.length;
+    if (data.success && data.odds) {
+      const eventCount = data.odds.length;
       showSuccess(
-        `Odds API working! Found ${sportCount} available sports.`
+        `Player Props API working! Found odds for ${eventCount} events with markets: ${data.markets || 'goals, assists'}.`
       );
     } else if (data.success === false && data.error === 'API key not configured') {
       showError(
         "Odds API key not configured. Please set ODDS_API_KEY environment variable."
       );
     } else {
-      showSuccess("Odds API executed successfully!");
+      showSuccess("Player Props API executed successfully!");
     }
   } catch (err) {
-    console.error("Error calling Odds API:", err);
+    console.error("Error calling Player Props API:", err);
     showError(
-      err.message || "Failed to call Odds API. Please try again."
+      err.message || "Failed to call Player Props API. Please try again."
     );
   } finally {
     showLoading(false);
