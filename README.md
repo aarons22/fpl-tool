@@ -63,6 +63,7 @@ This FPL tool provides everything you need for fantasy football analytics:
 - ⚽ **FPL API Integration** - Access Fantasy Premier League player, team, and manager data
 - 👥 **Manager Team Tracking** - View any FPL team's picks, transfers, and history
 - 🎲 **Player Props Odds** - Betting odds for goals, assists, and clean sheets
+- 🔄 **Transfer Recommendations** - AI-powered transfer suggestions based on odds and FPL scoring
 - 📱 **Progressive Web App (PWA)** - Installable, works offline
 - ☁️ **Serverless Backend** - Cloud Functions for API data processing
 - 🗄️ **Database** - Firestore for storing player stats and analysis
@@ -84,6 +85,7 @@ This FPL tool provides everything you need for fantasy football analytics:
 | 📄 Document | 🎯 Purpose | ⏱️ Time |
 |------------|-----------|--------|
 | **[API.md](API.md)** | Complete API reference for all Cloud Functions | Reference |
+| **[TRANSFER_RECOMMENDATIONS.md](TRANSFER_RECOMMENDATIONS.md)** | Transfer recommendation feature guide | 5 min read |
 | **[TESTING.md](TESTING.md)** | Testing guide (local & production) | 10 min read |
 | **[SETUP.md](SETUP.md)** | Complete first-time setup guide | 15-30 min |
 | **[TEMPLATE-USAGE.md](TEMPLATE-USAGE.md)** | How this was created from a template | 5 min read |
@@ -97,10 +99,11 @@ This FPL tool provides everything you need for fantasy football analytics:
 
 Perfect for:
 - Fantasy Premier League team optimization
+- **Data-driven transfer decisions** with odds-based recommendations
 - Player performance analysis with betting odds context
 - Gameweek planning and transfer decisions
 - League standings tracking
-- Data-driven FPL strategy development
+- FPL strategy development based on expected points
 
 ## 📋 Prerequisites
 
