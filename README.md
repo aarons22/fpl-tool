@@ -82,8 +82,10 @@ This FPL tool provides everything you need for fantasy football analytics:
 
 | 📄 Document | 🎯 Purpose | ⏱️ Time |
 |------------|-----------|--------|
+| **[API.md](API.md)** | Complete API reference for all Cloud Functions | Reference |
+| **[TESTING.md](TESTING.md)** | Testing guide (local & production) | 10 min read |
 | **[SETUP.md](SETUP.md)** | Complete first-time setup guide | 15-30 min |
-| **[TEMPLATE-USAGE.md](TEMPLATE-USAGE.md)** | How to use this as a template | 5 min read |
+| **[TEMPLATE-USAGE.md](TEMPLATE-USAGE.md)** | How this was created from a template | 5 min read |
 | **[FLOWCHART.md](FLOWCHART.md)** | Visual setup process flowchart | 2 min read |
 | **[DEVELOPMENT.md](DEVELOPMENT.md)** | Development workflow & best practices | Reference |
 | **[QUICK-REFERENCE.md](QUICK-REFERENCE.md)** | Command cheat sheet | Quick lookup |
@@ -205,13 +207,14 @@ firebase deploy --only firestore:rules
 
 ## 🔐 GitHub Actions Setup
 
-To enable automatic deployments, you need to configure one secret:
+To enable automatic deployments, you need to configure these secrets:
 
-### ⚠️ Required Secret for CI/CD
+### ⚠️ Required Secrets for CI/CD
 
 | Secret Name | Description | How to Get It |
 |------------|-------------|---------------|
 | `FIREBASE_TOKEN` | Authentication token for Firebase CLI | Run `firebase login:ci` in your terminal |
+| `ODDS_API_KEY` | Your API key for The Odds API | Register at [the-odds-api.com](https://the-odds-api.com/) |
 
 ### 📝 Step-by-Step: Adding the Secret
 
