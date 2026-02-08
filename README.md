@@ -1,12 +1,12 @@
-# Firebase Web App Template
+# FPL Tool
 
-A production-ready Progressive Web App (PWA) template with Firebase backend and automated CI/CD.
+A Fantasy Premier League (FPL) analytics tool with betting odds integration, built with Firebase and automated CI/CD.
 
 [![Deploy Status](https://img.shields.io/badge/deploy-automated-success)]()
 [![Firebase](https://img.shields.io/badge/Firebase-Ready-orange)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-> 🎯 **This is a template!** Click the "Use this template" button above to create your own project.
+> ⚽ **FPL Analytics Tool** - Analyze Fantasy Premier League data with sports betting odds integration.
 
 ---
 
@@ -58,14 +58,15 @@ Choose the guide that matches your needs:
 
 ## ✨ What's Included
 
-This template provides everything you need for a modern web app:
+This FPL tool provides everything you need for fantasy football analytics:
 
+- ⚽ **FPL API Integration** - Access Fantasy Premier League player and team data
+- 🎲 **Odds API Integration** - Sports betting odds for informed decision-making
 - 📱 **Progressive Web App (PWA)** - Installable, works offline
-- ☁️ **Serverless Backend** - Cloud Functions ready to use
-- 🗄️ **Database** - Firestore with security rules configured
+- ☁️ **Serverless Backend** - Cloud Functions for API data processing
+- 🗄️ **Database** - Firestore for storing player stats and analysis
 - 🚀 **Auto-Deploy** - Push to deploy via GitHub Actions
-- 🔒 **Secure** - Built-in authentication support
-- 📊 **Analytics-Ready** - Firebase Analytics integration available
+- 📊 **Real-time Analytics** - Live gameweek data and player performance tracking
 
 ## 🛠️ Tech Stack
 
@@ -92,22 +93,59 @@ This template provides everything you need for a modern web app:
 ## 🎯 Use Cases
 
 Perfect for:
-- Personal projects and portfolios
-- MVP and prototype development
-- Serverless applications
-- Real-time collaborative apps
-- Mobile-first web applications
+- Fantasy Premier League team optimization
+- Player performance analysis with betting odds context
+- Gameweek planning and transfer decisions
+- League standings tracking
+- Data-driven FPL strategy development
 
 ## 📋 Prerequisites
 
-To use this template, you'll need:
+To use this FPL tool, you'll need:
 
 - Node.js 20 or higher
 - A Firebase account (free tier available)
 - A GitHub account
 - Git installed locally
+- **The Odds API key** - Register at [the-odds-api.com](https://the-odds-api.com/) (free tier available)
 
 **Don't have these yet?** See [SETUP.md](SETUP.md) for detailed instructions.
+
+## 🔑 API Configuration
+
+This tool integrates with two external APIs:
+
+### 1. Fantasy Premier League API
+- **Base URL**: `https://fantasy.premierleague.com/api/`
+- **Authentication**: None required for most endpoints
+- **Key Endpoints**:
+  - `/bootstrap-static/` - Full player, team, and gameweek data
+  - `/fixtures/` - Match fixtures
+  - `/element-summary/{player_id}/` - Player details and history
+  - `/event/{gameweek}/live/` - Live gameweek data
+- **Documentation**: Community-driven, see [FPL API Guide](https://www.oliverlooney.com/blogs/FPL-APIs-Explained)
+
+### 2. The Odds API
+- **Base URL**: `https://api.the-odds-api.com/v4/`
+- **Authentication**: API key required (get yours at [the-odds-api.com](https://the-odds-api.com/))
+- **Key Endpoints**:
+  - `/sports/` - List available sports
+  - `/sports/{sport}/odds/` - Get odds for specific sport
+- **Configuration**: Set `ODDS_API_KEY` environment variable (see below)
+- **Documentation**: [Official Docs](https://the-odds-api.com/liveapi/guides/v4/)
+
+### Setting Up API Keys
+
+For local development, create `/functions/.env.local`:
+```bash
+ODDS_API_KEY=your-odds-api-key-here
+```
+
+For production (GitHub Actions), add these secrets to your repository:
+- `FIREBASE_TOKEN` - Firebase deployment token
+- `ODDS_API_KEY` - Your Odds API key
+
+See [SETUP.md](SETUP.md) for detailed instructions on adding GitHub secrets.
 
 ## 🔧 Local Development
 

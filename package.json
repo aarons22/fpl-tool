@@ -1,7 +1,7 @@
 {
-  "name": "firebase-web-app",
+  "name": "fpl-tool",
   "version": "1.0.0",
-  "description": "A basic Progressive Web App template built with Firebase",
+  "description": "Fantasy Premier League analytics tool with betting odds integration",
   "scripts": {
     "serve": "firebase serve",
     "deploy": "firebase deploy",
@@ -9,13 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/your-firebase-app.git"
+    "url": "https://github.com/aarons22/fpl-tool.git"
   },
   "keywords": [
+    "fantasy-premier-league",
+    "fpl",
+    "football",
+    "soccer",
+    "odds",
+    "analytics",
     "firebase",
-    "pwa",
-    "web-app",
-    "template"
+    "pwa"
   ],
   "author": "",
   "license": "ISC",
